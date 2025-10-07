@@ -1,0 +1,28 @@
+.sidebar {
+  width: 220px;
+  background-color: #181818;
+  padding: 1.5rem;
+  border-right: 1px solid #282828;
+  overflow-y: auto;
+}
+
+.sidebar h3 {
+  font-size: 1rem;
+  margin-bottom: 1rem;
+  color: #1db954;
+}
+
+.sidebar ul {
+  list-style: none;
+  padding: 0;
+}
+
+.sidebar li {
+  margin: 0.5rem 0;
+  cursor: pointer;
+  color: #ccc;
+}
+
+.sidebar li:hover {
+  color: #1db954;
+}

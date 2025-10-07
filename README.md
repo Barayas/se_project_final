@@ -1,3 +1,22 @@
 # NextTrack Application
 
-NextTrack is a custom React web application that displays the latest music releases from Spotify, allows filtering by artist genre, and enables users to generate playlists of new tracks — all powered by the Spotify Web API.
+This is a basic React application created with Vite.
+
+## Getting Started
+
+To run the application, follow these steps:
+
+1. Clone the repository
+2. Run `npm install`
+3. Run `npm run dev`
+
+## Features
+
+- Basic React application
+- Uses Vite for development and build
+- Includes a counter example
+
+## Technologies Used
+
+- React
+- Vite

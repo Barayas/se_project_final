@@ -1,28 +1,40 @@
 .sidebar {
-  width: 220px;
   background-color: #181818;
-  padding: 1.5rem;
-  border-right: 1px solid #282828;
-  overflow-y: auto;
+  color: #ffffff;
+  min-width: 200px;
+  padding: 1rem;
+  border-right: 1px solid #333;
 }
 
-.sidebar h3 {
-  font-size: 1rem;
-  margin-bottom: 1rem;
-  color: #1db954;
+.sidebar__nav {
+  display: flex;
+  flex-direction: column;
 }
 
-.sidebar ul {
+.sidebar__list {
   list-style: none;
+  margin: 0;
   padding: 0;
 }
 
-.sidebar li {
-  margin: 0.5rem 0;
-  cursor: pointer;
-  color: #ccc;
+.sidebar__item {
+  margin-bottom: 1rem;
 }
 
-.sidebar li:hover {
+.sidebar__link {
+  color: #ffffff;
+  text-decoration: none;
+  font-weight: 500;
+  transition: color 0.3s ease;
+}
+
+.sidebar__link:hover {
   color: #1db954;
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+  .sidebar {
+    display: none; /* will re-enable later when routing is added */
+  }
 }

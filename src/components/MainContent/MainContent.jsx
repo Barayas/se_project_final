@@ -1,16 +1,23 @@
-import React, { useState } from "react";
-import mockReleases from "../../utils/mockReleases.js";
+import React from "react";
 import "./MainContent.css";
 
-export default function MainContent() {
-  const [selectedGenre, setSelectedGenre] = useState("All");
+export default function MainContent({
+  selectedGenre,
+  setSelectedGenre,
+  releases,
+}) {
+  // Always derive genres from the full dataset
+  const allGenres = ["All", ...new Set(releases.map((a) => a.genre))];
 
+  // Filter releases by selected genre
   const filteredReleases =
     selectedGenre === "All"
-      ? mockReleases
-      : mockReleases.filter((album) => album.genre === selectedGenre);
-
-  const genres = ["All", ...new Set(mockReleases.map((a) => a.genre))];
+      ? releases
+      : releases.filter(
+          (album) =>
+            album.genre &&
+            album.genre.toLowerCase() === selectedGenre.toLowerCase()
+        );
 
   return (
     <main className="main-content">
@@ -21,22 +28,28 @@ export default function MainContent() {
           value={selectedGenre}
           onChange={(e) => setSelectedGenre(e.target.value)}
         >
-          {genres.map((genre) => (
-            <option key={genre}>{genre}</option>
+          {allGenres.map((genre) => (
+            <option key={genre} value={genre}>
+              {genre}
+            </option>
           ))}
         </select>
       </div>
 
-      <div className="album-grid">
-        {filteredReleases.map((album) => (
-          <div key={album.id} className="album-card">
-            <img src={album.cover} alt={album.title} />
-            <h4>{album.title}</h4>
-            <p>{album.artist}</p>
-            <span className="genre-tag">{album.genre}</span>
-          </div>
-        ))}
-      </div>
+      <section className="album-grid">
+        {filteredReleases.length > 0 ? (
+          filteredReleases.map((album) => (
+            <article key={album.id} className="album-card">
+              <img src={album.cover} alt={`${album.title} cover`} />
+              <h4>{album.title}</h4>
+              <p>{album.artist}</p>
+              <span className="genre-tag">{album.genre}</span>
+            </article>
+          ))
+        ) : (
+          <p>No albums found for this genre.</p>
+        )}
+      </section>
     </main>
   );
 }

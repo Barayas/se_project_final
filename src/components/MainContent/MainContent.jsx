@@ -1,22 +1,19 @@
-import React from "react";
+import { useState } from "react";
+import mockReleases from "../../utils/mockReleases.js";
 import "./MainContent.css";
 
-export default function MainContent({
-  selectedGenre,
-  setSelectedGenre,
-  releases,
-}) {
-  // Always derive genres from the full dataset
-  const allGenres = ["All", ...new Set(releases.map((a) => a.genre))];
+export default function MainContent({ handleAddToPlaylist }) {
+  const [selectedGenre, setSelectedGenre] = useState("All");
+
+  // Always show all available genres (including "All")
+  const genres = ["All", ...new Set(mockReleases.map((a) => a.genre))];
 
   // Filter releases by selected genre
   const filteredReleases =
     selectedGenre === "All"
-      ? releases
-      : releases.filter(
-          (album) =>
-            album.genre &&
-            album.genre.toLowerCase() === selectedGenre.toLowerCase()
+      ? mockReleases
+      : mockReleases.filter(
+          (album) => album.genre && album.genre === selectedGenre
         );
 
   return (
@@ -28,7 +25,7 @@ export default function MainContent({
           value={selectedGenre}
           onChange={(e) => setSelectedGenre(e.target.value)}
         >
-          {allGenres.map((genre) => (
+          {genres.map((genre) => (
             <option key={genre} value={genre}>
               {genre}
             </option>
@@ -36,20 +33,28 @@ export default function MainContent({
         </select>
       </div>
 
-      <section className="album-grid">
-        {filteredReleases.length > 0 ? (
-          filteredReleases.map((album) => (
-            <article key={album.id} className="album-card">
-              <img src={album.cover} alt={`${album.title} cover`} />
-              <h4>{album.title}</h4>
-              <p>{album.artist}</p>
-              <span className="genre-tag">{album.genre}</span>
-            </article>
-          ))
-        ) : (
-          <p>No albums found for this genre.</p>
-        )}
-      </section>
+      <div className="album-grid">
+        {filteredReleases.map((album) => (
+          <div key={album.id} className="album-card">
+            <img
+              src={album.cover}
+              alt={album.title}
+              onError={(e) => {
+                e.target.src = "https://placehold.co/200x200?text=No+Image";
+              }}
+            />
+            <h4>{album.title}</h4>
+            <p>{album.artist}</p>
+            <span className="genre-tag">{album.genre}</span>
+            <button
+              className="add-btn"
+              onClick={() => handleAddToPlaylist(album)}
+            >
+              + Add to Playlist
+            </button>
+          </div>
+        ))}
+      </div>
     </main>
   );
 }

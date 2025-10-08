@@ -51,5 +51,22 @@
   font-size: 0.75rem;
   border-radius: 12px;
   padding: 0.2rem 0.6rem;
-  margin-top: 0.3rem;
+  margin-bottom: 0.5rem;
+}
+.add-btn {
+  display: flex;
+  justify-content: center;
+  margin-left: auto;
+  margin-right: auto;
+  padding: 0.5rem 1rem;
+  background: #1db954;
+  border: none;
+  border-radius: 6px;
+  color: #fff;
+  cursor: pointer;
+}
+
+.add-btn:hover {
+  color: #181818;
+  transition: color 0.3s ease;
 }

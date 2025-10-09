@@ -4,7 +4,8 @@ export default [
     title: "Skyline",
     artist: "Aurora Beats",
     genre: "Electronic",
-    cover: "https://placehold.co/200x200?text=Skyline",
+    cover: "https://picsum.photos/200?random=1",
+    previewUrl: "https://www.soundhelix.com/examples/mp3/SoundHelix-Song-1.mp3",
   },
   {
     id: 2,

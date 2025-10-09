@@ -1,20 +1,18 @@
 import { useState } from "react";
 import mockReleases from "../../utils/mockReleases.js";
+import AlbumModal from "../AlbumModal/AlbumModal";
 import "./MainContent.css";
 
 export default function MainContent({ handleAddToPlaylist }) {
   const [selectedGenre, setSelectedGenre] = useState("All");
+  const [selectedAlbum, setSelectedAlbum] = useState(null);
 
-  // Always show all available genres (including "All")
   const genres = ["All", ...new Set(mockReleases.map((a) => a.genre))];
 
-  // Filter releases by selected genre
   const filteredReleases =
     selectedGenre === "All"
       ? mockReleases
-      : mockReleases.filter(
-          (album) => album.genre && album.genre === selectedGenre
-        );
+      : mockReleases.filter((album) => album.genre === selectedGenre);
 
   return (
     <main className="main-content">
@@ -26,35 +24,34 @@ export default function MainContent({ handleAddToPlaylist }) {
           onChange={(e) => setSelectedGenre(e.target.value)}
         >
           {genres.map((genre) => (
-            <option key={genre} value={genre}>
-              {genre}
-            </option>
+            <option key={genre}>{genre}</option>
           ))}
         </select>
       </div>
 
       <div className="album-grid">
         {filteredReleases.map((album) => (
-          <div key={album.id} className="album-card">
-            <img
-              src={album.cover}
-              alt={album.title}
-              onError={(e) => {
-                e.target.src = "https://placehold.co/200x200?text=No+Image";
-              }}
-            />
+          <div
+            key={album.id}
+            className="album-card"
+            onClick={() => setSelectedAlbum(album)}
+          >
+            <img src={album.cover} alt={album.title} />
             <h4>{album.title}</h4>
             <p>{album.artist}</p>
             <span className="genre-tag">{album.genre}</span>
-            <button
-              className="add-btn"
-              onClick={() => handleAddToPlaylist(album)}
-            >
-              + Add to Playlist
-            </button>
           </div>
         ))}
       </div>
+
+      {/* Modal */}
+      {selectedAlbum && (
+        <AlbumModal
+          album={selectedAlbum}
+          onClose={() => setSelectedAlbum(null)}
+          onAddToPlaylist={handleAddToPlaylist}
+        />
+      )}
     </main>
   );
 }

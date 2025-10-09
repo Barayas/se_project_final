@@ -1,0 +1,39 @@
+.album-modal-content {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 1rem;
+}
+
+.album-modal-cover {
+  width: 200px;
+  height: 200px;
+  border-radius: 12px;
+  object-fit: cover;
+  box-shadow: 0 0 12px rgba(0, 0, 0, 0.6);
+}
+
+.album-modal-content h3 {
+  margin: 0;
+  font-size: 1.2rem;
+  color: #fff;
+}
+
+.album-genre {
+  font-size: 0.9rem;
+  background: #1db954;
+  margin-bottom: 0.5rem;
+  padding: 0.2rem 0.5rem;
+  border-radius: 12px;
+}
+
+.album-audio-preview {
+  width: 100%;
+  margin-top: 0.5rem;
+}
+
+.no-preview {
+  color: #888;
+  font-size: 0.85rem;
+  margin-top: 0.5rem;
+}

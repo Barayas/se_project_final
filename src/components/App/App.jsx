@@ -62,12 +62,12 @@ function Layout({
 function App() {
   const [selectedGenre, setSelectedGenre] = useState("All");
   const [playlist, setPlaylist] = useState(() => {
-    // ✅ Load from localStorage on startup
+    // Load from localStorage on startup
     const saved = localStorage.getItem("nexttrack_playlist");
     return saved ? JSON.parse(saved) : [];
   });
 
-  // ✅ Save to localStorage whenever playlist changes
+  // Save to localStorage whenever playlist changes
   useEffect(() => {
     localStorage.setItem("nexttrack_playlist", JSON.stringify(playlist));
   }, [playlist]);

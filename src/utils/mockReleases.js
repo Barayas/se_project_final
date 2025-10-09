@@ -6,6 +6,7 @@ export default [
     genre: "Electronic",
     cover: "https://picsum.photos/200?random=1",
     previewUrl: "https://www.soundhelix.com/examples/mp3/SoundHelix-Song-1.mp3",
+    tracks: ["Intro", "City Lights", "Midnight Run", "Skylines", "Afterglow"],
   },
   {
     id: 2,

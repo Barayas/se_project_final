@@ -3,16 +3,21 @@ import mockReleases from "../../utils/mockReleases.js";
 import AlbumModal from "../AlbumModal/AlbumModal";
 import "./MainContent.css";
 
-export default function MainContent({ handleAddToPlaylist }) {
-  const [selectedGenre, setSelectedGenre] = useState("All");
+export default function MainContent({
+  selectedGenre,
+  setSelectedGenre,
+  releases = mockReleases,
+  playlists,
+  handleAddToPlaylist,
+}) {
   const [selectedAlbum, setSelectedAlbum] = useState(null);
 
-  const genres = ["All", ...new Set(mockReleases.map((a) => a.genre))];
+  const genres = ["All", ...new Set(releases.map((a) => a.genre))];
 
   const filteredReleases =
     selectedGenre === "All"
-      ? mockReleases
-      : mockReleases.filter((album) => album.genre === selectedGenre);
+      ? releases
+      : releases.filter((album) => album.genre === selectedGenre);
 
   return (
     <main className="main-content">
@@ -44,12 +49,13 @@ export default function MainContent({ handleAddToPlaylist }) {
         ))}
       </div>
 
-      {/* Modal */}
+      {/* Album Modal */}
       {selectedAlbum && (
         <AlbumModal
           album={selectedAlbum}
           onClose={() => setSelectedAlbum(null)}
           onAddToPlaylist={handleAddToPlaylist}
+          playlists={playlists}
         />
       )}
     </main>

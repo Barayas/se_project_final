@@ -8,7 +8,10 @@ export default function PlaylistModal({
   playlist,
   handleDeletePlaylist,
 }) {
-  if (!playlist) return null; // Prevents errors if playlist data is missing
+  if (!playlist) return null;
+
+  const hasAlbums = playlist.albums && playlist.albums.length > 0;
+  const hasSongs = playlist.songs && playlist.songs.length > 0;
 
   return (
     <ModalWithForm
@@ -27,20 +30,48 @@ export default function PlaylistModal({
           <p className="playlist-modal-description">{playlist.description}</p>
         )}
 
-        {playlist.tracks && playlist.tracks.length > 0 ? (
-          <div className="playlist-tracks">
-            <h4>Tracks</h4>
-            <ul>
-              {playlist.tracks.map((track, index) => (
-                <li key={index} className="track-item">
-                  <span className="track-title">{track.title}</span>
-                  <span className="track-artist">{track.artist}</span>
+        {/* Albums Section */}
+        {hasAlbums && (
+          <div className="playlist-albums">
+            <h4>Albums</h4>
+            <ul className="album-list">
+              {playlist.albums.map((album) => (
+                <li key={album.id} className="album-item">
+                  <img
+                    src={album.cover}
+                    alt={album.title}
+                    className="album-thumb"
+                  />
+                  <div className="album-info">
+                    <span className="album-title">{album.title}</span>
+                    <span className="album-artist">{album.artist}</span>
+                  </div>
                 </li>
               ))}
             </ul>
           </div>
-        ) : (
-          <p className="no-tracks">No tracks in this playlist yet.</p>
+        )}
+
+        {/* Songs Section */}
+        {hasSongs && (
+          <div className="playlist-songs">
+            <h4>Songs</h4>
+            <ul className="song-list">
+              {playlist.songs.map((song, index) => (
+                <li key={index} className="song-item">
+                  <span className="song-title">{song.title}</span>
+                  <span className="song-artist">{song.artist}</span>
+                  {song.album && (
+                    <span className="song-album">({song.album})</span>
+                  )}
+                </li>
+              ))}
+            </ul>
+          </div>
+        )}
+
+        {!hasAlbums && !hasSongs && (
+          <p className="no-tracks">No albums or songs in this playlist yet.</p>
         )}
 
         <button

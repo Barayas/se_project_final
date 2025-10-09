@@ -1,40 +1,76 @@
+import { useState } from "react";
 import ModalWithForm from "../ModalWithForm/ModalWithForm";
 import "./AlbumModal.css";
 
-export default function AlbumModal({ album, onClose, onAddToPlaylist }) {
-  if (!album) return null;
+export default function AlbumModal({
+  album,
+  onClose,
+  playlists = [],
+  onAddToPlaylist,
+}) {
+  const [activeSong, setActiveSong] = useState(null); // which song’s add menu is open
 
-  const handleSubmit = () => {
-    onAddToPlaylist(album);
-    onClose();
+  const handleAddToPlaylist = (playlist, song) => {
+    onAddToPlaylist(album, playlist, song);
+    setActiveSong(null);
   };
 
   return (
     <ModalWithForm
-      title={album.title}
+      isOpen={!!album}
       onClose={onClose}
-      onSubmit={handleSubmit}
-      submitText="Add to Playlist"
+      title={album?.title || "Album"}
     >
-      <div className="album-modal-content">
-        <img
-          src={album.cover}
-          alt={album.title}
-          className="album-modal-cover"
-        />
+      <div className="album-modal">
+        <div className="album-info">
+          <img src={album.cover} alt={album.title} className="album-cover" />
+          <div className="album-meta">
+            <h3>{album.title}</h3>
+            <p className="album-artist">{album.artist}</p>
+            <span className="album-genre">{album.genre}</span>
+          </div>
+        </div>
 
-        <h3>{album.artist}</h3>
-        <p className="album-genre">{album.genre}</p>
-
-        {/* Only render audio if a preview exists */}
-        {album.previewUrl ? (
-          <audio controls className="album-audio-preview">
-            <source src={album.previewUrl} type="audio/mpeg" />
-            Your browser does not support the audio element.
-          </audio>
-        ) : (
-          <p className="no-preview">No preview available</p>
-        )}
+        <div className="tracklist">
+          <h4>Tracks</h4>
+          {album.tracks && album.tracks.length > 0 ? (
+            <ul>
+              {album.tracks.map((track, i) => (
+                <li key={i} className="track-row">
+                  <span>{track}</span>
+                  <div className="track-actions">
+                    <button
+                      className="add-btn"
+                      onClick={() =>
+                        setActiveSong(activeSong === track ? null : track)
+                      }
+                    >
+                      + Add
+                    </button>
+                    {activeSong === track && (
+                      <div className="playlist-popup">
+                        {playlists.length > 0 ? (
+                          playlists.map((pl) => (
+                            <button
+                              key={pl.id}
+                              onClick={() => handleAddToPlaylist(pl, track)}
+                            >
+                              {pl.name}
+                            </button>
+                          ))
+                        ) : (
+                          <p>No playlists yet</p>
+                        )}
+                      </div>
+                    )}
+                  </div>
+                </li>
+              ))}
+            </ul>
+          ) : (
+            <p className="no-tracks">No tracks available.</p>
+          )}
+        </div>
       </div>
     </ModalWithForm>
   );

@@ -40,6 +40,7 @@ function Layout({
                 selectedGenre={selectedGenre}
                 setSelectedGenre={setSelectedGenre}
                 releases={mockReleases}
+                playlists={playlists}
                 handleAddToPlaylist={handleAddToPlaylist}
               />
             }
@@ -69,10 +70,10 @@ function App() {
   });
 
   const [showCreateModal, setShowCreateModal] = useState(false);
-
   const [showPlaylistModal, setShowPlaylistModal] = useState(false);
   const [selectedPlaylist, setSelectedPlaylist] = useState(null);
 
+  // Persist playlists in localStorage
   useEffect(() => {
     localStorage.setItem("nexttrack_playlists", JSON.stringify(playlists));
   }, [playlists]);
@@ -84,14 +85,28 @@ function App() {
       description,
       albums: [],
       songs: [],
-      cover: cover || null, // optional cover
-      tracks: [],
+      cover: cover || null,
     };
     setPlaylists((prev) => [...prev, newPlaylist]);
   };
 
-  const handleAddToPlaylist = (album) => {
-    console.log("Add to playlist:", album);
+  const handleAddToPlaylist = (playlistId, content) => {
+    setPlaylists((prev) =>
+      prev.map((playlist) => {
+        if (playlist.id === parseInt(playlistId)) {
+          return {
+            ...playlist,
+            albums: content.albums
+              ? [...playlist.albums, ...content.albums]
+              : playlist.albums,
+            songs: content.songs
+              ? [...playlist.songs, ...content.songs]
+              : playlist.songs,
+          };
+        }
+        return playlist;
+      })
+    );
   };
 
   const handleRemoveFromPlaylist = (playlistId) => {

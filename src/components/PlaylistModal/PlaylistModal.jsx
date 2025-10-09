@@ -7,14 +7,15 @@ export default function PlaylistModal({
   onClose,
   playlist,
   handleDeletePlaylist,
+  onRemoveSong,
 }) {
   if (!playlist) return null;
 
-  const hasAlbums = playlist.albums && playlist.albums.length > 0;
   const hasSongs = playlist.songs && playlist.songs.length > 0;
 
   return (
     <ModalWithForm
+      showSubmit={false}
       isOpen={isOpen}
       onClose={onClose}
       title={playlist.name || "Untitled Playlist"}
@@ -37,19 +38,28 @@ export default function PlaylistModal({
             <ul className="song-list">
               {playlist.songs.map((song, index) => (
                 <li key={index} className="song-item">
-                  <span className="song-title">{song.title}</span>
-                  <span className="song-artist">{song.artist}</span>
-                  {song.album && (
-                    <span className="song-album">({song.album})</span>
-                  )}
+                  <div className="song-info">
+                    <span className="song-title">{song.title}</span>
+                    <span className="song-artist">{song.artist}</span>
+                    {song.album && (
+                      <span className="song-album">({song.album})</span>
+                    )}
+                  </div>
+                  <button
+                    className="remove-song-btn"
+                    onClick={() => onRemoveSong(playlist.id, song)}
+                    title="Remove song from playlist"
+                  >
+                    ✕
+                  </button>
                 </li>
               ))}
             </ul>
           </div>
         )}
 
-        {!hasAlbums && !hasSongs && (
-          <p className="no-tracks">No albums or songs in this playlist yet.</p>
+        {!hasSongs && (
+          <p className="no-tracks">No songs in this playlist yet.</p>
         )}
 
         <button

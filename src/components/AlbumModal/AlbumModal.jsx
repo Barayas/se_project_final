@@ -49,7 +49,7 @@ export default function AlbumModal({
           </button>
 
           {showPlaylistPopup && (
-            <div className="playlist-popup">
+            <div className="album-popup">
               {playlists.length > 0 ? (
                 playlists.map((pl) => (
                   <button

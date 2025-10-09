@@ -22,39 +22,80 @@
   max-width: 400px;
 }
 
-.playlist-tracks {
+.playlist-songs {
   width: 100%;
-  text-align: left;
 }
 
-.playlist-tracks h4 {
+.playlist-songs h4 {
   color: #fff;
   margin-bottom: 0.5rem;
 }
 
-.playlist-tracks ul {
+.song-list {
+  width: 100%;
+  display: flex;
+  flex-direction: column;
   list-style: none;
   padding: 0;
   margin: 0;
 }
 
-.track-item {
+.song-item {
   display: flex;
+  align-items: center;
   justify-content: space-between;
-  padding: 0.5rem 0.75rem;
   background-color: #222;
   border-radius: 6px;
   margin-bottom: 0.4rem;
+  padding: 0.5rem 0.75rem;
 }
 
-.track-title {
+.song-info {
+  display: grid;
+  grid-template-columns: 1fr 1fr 1fr;
+  align-items: center;
+  flex: 1;
+  gap: 1rem;
+}
+
+.song-title,
+.song-artist,
+.song-album {
   color: #fff;
-  font-weight: 500;
+  text-align: left;
+  overflow: hidden;
+  white-space: nowrap;
+  text-overflow: ellipsis;
 }
 
-.track-artist {
+.song-title {
+  font-weight: 600;
+}
+
+.song-artist {
   color: #aaa;
-  font-size: 0.9rem;
+}
+
+.song-album {
+  color: #777;
+  font-style: italic;
+}
+
+.remove-song-btn {
+  background: transparent;
+  border: none;
+  color: #ff4d4d;
+  font-size: 1.1rem;
+  cursor: pointer;
+  padding: 0.2rem 0.5rem;
+  border-radius: 50%;
+  transition: 0.2s ease, color 0.2s ease;
+  margin-left: 0.5rem;
+}
+
+.remove-song-btn:hover {
+  background: rgba(255, 77, 77, 0.1);
+  color: #ff6666;
 }
 
 .no-tracks {
@@ -75,43 +116,4 @@
 
 .delete-playlist-btn:hover {
   background-color: #e74c3c;
-}
-
-.album-list,
-.song-list {
-  list-style: none;
-  padding: 0;
-  margin: 0;
-}
-
-.album-item,
-.song-item {
-  display: flex;
-  align-items: center;
-  margin: 8px 0;
-}
-
-.album-thumb {
-  width: 50px;
-  height: 50px;
-  border-radius: 6px;
-  object-fit: cover;
-  margin-right: 10px;
-}
-
-.album-info,
-.song-item span {
-  display: flex;
-  flex-direction: column;
-}
-
-.album-title,
-.song-title {
-  font-weight: bold;
-}
-
-.album-artist,
-.song-artist {
-  font-size: 0.9em;
-  color: #888;
 }

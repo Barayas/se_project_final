@@ -133,6 +133,32 @@ function App() {
     setShowPlaylistModal(false);
   };
 
+  const handleRemoveSong = (playlistId, song) => {
+    setPlaylists((prev) => {
+      const updated = prev.map((pl) => {
+        if (pl.id !== playlistId) return pl;
+
+        const filteredSongs = (pl.songs || []).filter(
+          (s) =>
+            !(
+              s.title === song.title &&
+              s.artist === song.artist &&
+              (s.album || "") === (song.album || "")
+            )
+        );
+
+        return { ...pl, songs: filteredSongs };
+      });
+
+      if (selectedPlaylist && selectedPlaylist.id === playlistId) {
+        const newSelected = updated.find((p) => p.id === playlistId) || null;
+        setSelectedPlaylist(newSelected);
+      }
+
+      return updated;
+    });
+  };
+
   return (
     <Router>
       <Layout
@@ -160,6 +186,7 @@ function App() {
           onClose={() => setShowPlaylistModal(false)}
           playlist={selectedPlaylist}
           handleDeletePlaylist={handleDeletePlaylist}
+          onRemoveSong={handleRemoveSong}
         />
       )}
     </Router>

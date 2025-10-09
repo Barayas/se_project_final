@@ -9,8 +9,16 @@ export default function AlbumModal({
   onAddToPlaylist,
 }) {
   const [activeSong, setActiveSong] = useState(null); // which song’s add menu is open
+  const [showPlaylistPopup, setShowPlaylistPopup] = useState(false);
 
-  const handleAddToPlaylist = (playlist, song) => {
+  const handleAddAlbumToPlaylist = (playlist) => {
+    album.tracks.forEach((track) => {
+      onAddToPlaylist(album, playlist, track);
+    });
+    setShowPlaylistPopup(false);
+  };
+
+  const handleAddSongToPlaylist = (playlist, song) => {
     onAddToPlaylist(album, playlist, song);
     setActiveSong(null);
   };
@@ -20,6 +28,7 @@ export default function AlbumModal({
       isOpen={!!album}
       onClose={onClose}
       title={album?.title || "Album"}
+      showSubmit={false}
     >
       <div className="album-modal">
         <div className="album-info">
@@ -29,6 +38,32 @@ export default function AlbumModal({
             <p className="album-artist">{album.artist}</p>
             <span className="album-genre">{album.genre}</span>
           </div>
+        </div>
+
+        <div className="album-actions">
+          <button
+            className="add-album-btn"
+            onClick={() => setShowPlaylistPopup(!showPlaylistPopup)}
+          >
+            + Add Album to Playlist
+          </button>
+
+          {showPlaylistPopup && (
+            <div className="playlist-popup">
+              {playlists.length > 0 ? (
+                playlists.map((pl) => (
+                  <button
+                    key={pl.id}
+                    onClick={() => handleAddAlbumToPlaylist(pl)}
+                  >
+                    {pl.name}
+                  </button>
+                ))
+              ) : (
+                <p>No playlists yet</p>
+              )}
+            </div>
+          )}
         </div>
 
         <div className="tracklist">
@@ -53,7 +88,7 @@ export default function AlbumModal({
                           playlists.map((pl) => (
                             <button
                               key={pl.id}
-                              onClick={() => handleAddToPlaylist(pl, track)}
+                              onClick={() => handleAddSongToPlaylist(pl, track)}
                             >
                               {pl.name}
                             </button>

@@ -30,28 +30,6 @@ export default function PlaylistModal({
           <p className="playlist-modal-description">{playlist.description}</p>
         )}
 
-        {/* Albums Section */}
-        {hasAlbums && (
-          <div className="playlist-albums">
-            <h4>Albums</h4>
-            <ul className="album-list">
-              {playlist.albums.map((album) => (
-                <li key={album.id} className="album-item">
-                  <img
-                    src={album.cover}
-                    alt={album.title}
-                    className="album-thumb"
-                  />
-                  <div className="album-info">
-                    <span className="album-title">{album.title}</span>
-                    <span className="album-artist">{album.artist}</span>
-                  </div>
-                </li>
-              ))}
-            </ul>
-          </div>
-        )}
-
         {/* Songs Section */}
         {hasSongs && (
           <div className="playlist-songs">

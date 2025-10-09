@@ -90,21 +90,31 @@ function App() {
     setPlaylists((prev) => [...prev, newPlaylist]);
   };
 
-  const handleAddToPlaylist = (playlistId, content) => {
+  const handleAddToPlaylist = (album, playlist, track) => {
     setPlaylists((prev) =>
-      prev.map((playlist) => {
-        if (playlist.id === parseInt(playlistId)) {
+      prev.map((p) => {
+        if (p.id === playlist.id) {
+          const newSong = {
+            title: track,
+            artist: album.artist,
+            album: album.title,
+            cover: album.cover,
+          };
+
+          // Prevent duplicate songs
+          const exists = p.songs?.some(
+            (s) =>
+              s.title === newSong.title &&
+              s.artist === newSong.artist &&
+              s.album === newSong.album
+          );
+
           return {
-            ...playlist,
-            albums: content.albums
-              ? [...playlist.albums, ...content.albums]
-              : playlist.albums,
-            songs: content.songs
-              ? [...playlist.songs, ...content.songs]
-              : playlist.songs,
+            ...p,
+            songs: exists ? p.songs : [...(p.songs || []), newSong],
           };
         }
-        return playlist;
+        return p;
       })
     );
   };

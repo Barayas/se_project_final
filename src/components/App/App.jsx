@@ -10,6 +10,8 @@ import Sidebar from "../Sidebar/Sidebar";
 import MainContent from "../MainContent/MainContent";
 import Footer from "../Footer/Footer";
 import PlaylistPage from "../PlaylistPage/PlaylistPage";
+import CreatePlaylistModal from "../CreatePlaylistModal/CreatePlaylistModal";
+import PlaylistModal from "../PlaylistModal/PlaylistModal";
 import mockReleases from "../../utils/mockReleases";
 import "./App.css";
 
@@ -18,17 +20,16 @@ function Layout({
   setSelectedGenre,
   handleAddToPlaylist,
   handleRemoveFromPlaylist,
-  playlist,
+  playlists,
+  onOpenCreatePlaylist,
+  onOpenPlaylistModal,
 }) {
   const location = useLocation();
-  const showSidebar = location.pathname !== "/"; // hide sidebar on home
+  const showSidebar = location.pathname !== "/";
 
   return (
     <div className="app">
-      <Header
-        selectedGenre={selectedGenre}
-        setSelectedGenre={setSelectedGenre}
-      />
+      <Header onOpenCreatePlaylist={onOpenCreatePlaylist} />
       <div className="layout">
         {showSidebar && <Sidebar />}
         <Routes>
@@ -47,8 +48,9 @@ function Layout({
             path="/playlists"
             element={
               <PlaylistPage
-                playlist={playlist}
+                playlists={playlists}
                 handleRemoveFromPlaylist={handleRemoveFromPlaylist}
+                onOpenPlaylistModal={onOpenPlaylistModal}
               />
             }
           />
@@ -61,26 +63,49 @@ function Layout({
 
 function App() {
   const [selectedGenre, setSelectedGenre] = useState("All");
-  const [playlist, setPlaylist] = useState(() => {
-    // Load from localStorage on startup
-    const saved = localStorage.getItem("nexttrack_playlist");
+  const [playlists, setPlaylists] = useState(() => {
+    const saved = localStorage.getItem("nexttrack_playlists");
     return saved ? JSON.parse(saved) : [];
   });
 
-  // Save to localStorage whenever playlist changes
-  useEffect(() => {
-    localStorage.setItem("nexttrack_playlist", JSON.stringify(playlist));
-  }, [playlist]);
+  const [showCreateModal, setShowCreateModal] = useState(false);
 
-  const handleAddToPlaylist = (album) => {
-    setPlaylist((prev) => {
-      if (prev.find((a) => a.id === album.id)) return prev; // avoid duplicates
-      return [...prev, album];
-    });
+  const [showPlaylistModal, setShowPlaylistModal] = useState(false);
+  const [selectedPlaylist, setSelectedPlaylist] = useState(null);
+
+  useEffect(() => {
+    localStorage.setItem("nexttrack_playlists", JSON.stringify(playlists));
+  }, [playlists]);
+
+  const handleCreatePlaylist = ({ name, description, cover }) => {
+    const newPlaylist = {
+      id: Date.now(),
+      name,
+      description,
+      albums: [],
+      songs: [],
+      cover: cover || null, // optional cover
+      tracks: [],
+    };
+    setPlaylists((prev) => [...prev, newPlaylist]);
   };
 
-  const handleRemoveFromPlaylist = (albumId) => {
-    setPlaylist((prev) => prev.filter((a) => a.id !== albumId));
+  const handleAddToPlaylist = (album) => {
+    console.log("Add to playlist:", album);
+  };
+
+  const handleRemoveFromPlaylist = (playlistId) => {
+    setPlaylists((prev) => prev.filter((p) => p.id !== playlistId));
+  };
+
+  const handleOpenPlaylistModal = (playlist) => {
+    setSelectedPlaylist(playlist);
+    setShowPlaylistModal(true);
+  };
+
+  const handleDeletePlaylist = (id) => {
+    setPlaylists((prev) => prev.filter((p) => p.id !== id));
+    setShowPlaylistModal(false);
   };
 
   return (
@@ -90,8 +115,28 @@ function App() {
         setSelectedGenre={setSelectedGenre}
         handleAddToPlaylist={handleAddToPlaylist}
         handleRemoveFromPlaylist={handleRemoveFromPlaylist}
-        playlist={playlist}
+        playlists={playlists}
+        onOpenCreatePlaylist={() => setShowCreateModal(true)}
+        onOpenPlaylistModal={handleOpenPlaylistModal}
       />
+
+      {/* Create Playlist Modal */}
+      {showCreateModal && (
+        <CreatePlaylistModal
+          onClose={() => setShowCreateModal(false)}
+          onCreate={handleCreatePlaylist}
+        />
+      )}
+
+      {/* Playlist Info Modal */}
+      {showPlaylistModal && selectedPlaylist && (
+        <PlaylistModal
+          isOpen={showPlaylistModal}
+          onClose={() => setShowPlaylistModal(false)}
+          playlist={selectedPlaylist}
+          handleDeletePlaylist={handleDeletePlaylist}
+        />
+      )}
     </Router>
   );
 }

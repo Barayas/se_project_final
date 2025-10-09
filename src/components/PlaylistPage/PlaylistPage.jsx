@@ -1,28 +1,35 @@
 import "./PlaylistPage.css";
+import defaultCover from "../../assets/default-playlist.png"; //
 
-export default function PlaylistPage({ playlist, handleRemoveFromPlaylist }) {
+export default function PlaylistPage({
+  playlists,
+  handleRemoveFromPlaylist,
+  onOpenPlaylistModal,
+}) {
   return (
     <main className="main-content">
       <div className="content-header">
-        <h2>Your Playlist</h2>
+        <h2>Your Playlists</h2>
       </div>
 
-      {playlist.length === 0 ? (
-        <p>No albums in your playlist yet. Go add some!</p>
+      {!playlists || playlists.length === 0 ? (
+        <p>No playlists yet. Click “Create Playlist” to make one!</p>
       ) : (
-        <div className="album-grid">
-          {playlist.map((album) => (
-            <div key={album.id} className="album-card">
-              <img src={album.cover} alt={album.title} />
-              <h4>{album.title}</h4>
-              <p>{album.artist}</p>
-              <span className="genre-tag">{album.genre}</span>
-              <button
-                className="remove-btn"
-                onClick={() => handleRemoveFromPlaylist(album.id)}
-              >
-                - Remove
-              </button>
+        <div className="playlist-grid">
+          {playlists.map((pl) => (
+            <div
+              key={pl.id}
+              className="playlist-card"
+              onClick={() => onOpenPlaylistModal(pl)}
+            >
+              <img
+                src={pl.cover || defaultCover}
+                alt={pl.name}
+                className="playlist-cover"
+              />
+              <div className="playlist-info">
+                <h3 className="playlist-title">{pl.name}</h3>
+              </div>
             </div>
           ))}
         </div>

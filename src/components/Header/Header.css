@@ -53,3 +53,32 @@
   background-color: #181818;
   transition: all 0.3s ease;
 }
+
+.spotify-profile {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  background: #191414;
+  color: white;
+  padding: 0.4rem 0.8rem;
+  border-radius: 9999px;
+}
+
+.spotify-avatar {
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  object-fit: cover;
+}
+
+.logout-btn {
+  background: none;
+  border: none;
+  color: #1db954;
+  cursor: pointer;
+  font-size: 0.9rem;
+}
+
+.logout-btn:hover {
+  text-decoration: underline;
+}

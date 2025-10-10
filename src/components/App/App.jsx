@@ -24,13 +24,19 @@ function Layout({
   playlists,
   onOpenCreatePlaylist,
   onOpenPlaylistModal,
+  spotifyUser,
+  setSpotifyUser,
 }) {
   const location = useLocation();
   const showSidebar = location.pathname !== "/";
 
   return (
     <div className="app">
-      <Header onOpenCreatePlaylist={onOpenCreatePlaylist} />
+      <Header
+        onOpenCreatePlaylist={onOpenCreatePlaylist}
+        spotifyUser={spotifyUser}
+        setSpotifyUser={setSpotifyUser}
+      />
       <div className="layout">
         {showSidebar && <Sidebar />}
         <Routes>
@@ -56,7 +62,10 @@ function Layout({
               />
             }
           />
-          <Route path="/callback" element={<SpotifyCallback />} />
+          <Route
+            path="/callback"
+            element={<SpotifyCallback setSpotifyUser={setSpotifyUser} />}
+          />
         </Routes>
       </div>
       <Footer />
@@ -74,6 +83,10 @@ function App() {
   const [showCreateModal, setShowCreateModal] = useState(false);
   const [showPlaylistModal, setShowPlaylistModal] = useState(false);
   const [selectedPlaylist, setSelectedPlaylist] = useState(null);
+
+  // **Spotify user state**
+  const [spotifyUser, setSpotifyUser] = useState(null);
+  console.log("Current spotifyUser state:", spotifyUser);
 
   // Persist playlists in localStorage
   useEffect(() => {
@@ -103,7 +116,6 @@ function App() {
             cover: album.cover,
           };
 
-          // Prevent duplicate songs
           const exists = p.songs?.some(
             (s) =>
               s.title === newSong.title &&
@@ -171,6 +183,8 @@ function App() {
         playlists={playlists}
         onOpenCreatePlaylist={() => setShowCreateModal(true)}
         onOpenPlaylistModal={handleOpenPlaylistModal}
+        spotifyUser={spotifyUser}
+        setSpotifyUser={setSpotifyUser}
       />
 
       {/* Create Playlist Modal */}

@@ -1,59 +1,43 @@
 import { useEffect } from "react";
 import { useNavigate } from "react-router-dom";
+import { setAccessToken, getCurrentUserProfile } from "../../utils/SpotifyApi";
 
-export default function SpotifyCallback() {
+export default function SpotifyCallback({ setSpotifyUser }) {
   const navigate = useNavigate();
 
   useEffect(() => {
-    const fetchAccessToken = async () => {
-      const params = new URLSearchParams(window.location.search);
-      const code = params.get("code");
+    console.log("SpotifyCallback useEffect triggered");
+    const hashParams = new URLSearchParams(window.location.hash.substring(1));
+    const token = hashParams.get("access_token");
+    const expiresIn = parseInt(hashParams.get("expires_in") || "3600", 10);
 
-      if (!code) {
-        console.error("No authorization code found in callback URL");
-        return;
-      }
+    if (!token) {
+      console.error("No access token found in URL hash");
+      return;
+    }
 
-      const clientId = import.meta.env.VITE_SPOTIFY_CLIENT_ID;
-      const redirectUri = import.meta.env.VITE_REDIRECT_URI;
-      const codeVerifier = localStorage.getItem("code_verifier");
+    // Store token locally
+    setAccessToken(token, expiresIn);
 
-      const body = new URLSearchParams({
-        client_id: clientId,
-        grant_type: "authorization_code",
-        code,
-        redirect_uri: redirectUri,
-        code_verifier: codeVerifier,
-      });
-
+    // Fetch Spotify profile and update App state
+    const fetchProfile = async () => {
       try {
-        const response = await fetch("https://accounts.spotify.com/api/token", {
-          method: "POST",
-          headers: { "Content-Type": "application/x-www-form-urlencoded" },
-          body,
-        });
-
-        const data = await response.json();
-
-        if (data.access_token) {
-          localStorage.setItem("spotify_access_token", data.access_token);
-          console.log("Spotify Access Token:", data.access_token);
-          navigate("/"); // redirect to home or playlists
-        } else {
-          console.error("Failed to get access token:", data);
-        }
-      } catch (error) {
-        console.error("Error fetching Spotify token:", error);
+        const profile = await getCurrentUserProfile();
+        setSpotifyUser(profile);
+        window.location.hash = "";
+        navigate("/");
+      } catch (err) {
+        console.error("Failed to fetch Spotify profile", err);
       }
     };
 
-    fetchAccessToken();
-  }, [navigate]);
+    fetchProfile();
+  }, [navigate, setSpotifyUser]);
 
   return (
     <div style={{ padding: "2rem", color: "#fff" }}>
       <h2>Connecting to Spotify...</h2>
-      <p>Please wait a moment while we complete the login.</p>
+      <p>Please wait while we complete the login.</p>
     </div>
   );
 }

@@ -13,6 +13,7 @@ import PlaylistPage from "../PlaylistPage/PlaylistPage";
 import CreatePlaylistModal from "../CreatePlaylistModal/CreatePlaylistModal";
 import PlaylistModal from "../PlaylistModal/PlaylistModal";
 import mockReleases from "../../utils/mockReleases";
+import SpotifyCallback from "../SpotifyCallback/SpotifyCallback";
 import "./App.css";
 
 function Layout({
@@ -55,6 +56,7 @@ function Layout({
               />
             }
           />
+          <Route path="/callback" element={<SpotifyCallback />} />
         </Routes>
       </div>
       <Footer />

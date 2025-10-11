@@ -1,12 +1,11 @@
 import { useState, useEffect } from "react";
 import {
   getNewReleases,
-  getArtistGenres,
+  getAlbumTracks,
   getAccessToken,
 } from "../../utils/SpotifyApi";
 import AlbumModal from "../AlbumModal/AlbumModal";
 import "./MainContent.css";
-import { getAlbumTracks } from "../../utils/SpotifyApi";
 
 export default function MainContent({
   selectedGenre,
@@ -39,30 +38,17 @@ export default function MainContent({
     const fetchReleases = async () => {
       try {
         setLoading(true);
-        const newReleases = await getNewReleases(20);
-        const albums = newReleases.albums.items;
+        const albums = await getNewReleases(20);
 
-        // Collect all artist IDs
-        const artistIds = albums.flatMap((album) =>
-          album.artists.map((a) => a.id)
-        );
-
-        // Fetch genres for all artists
-        const artistGenreMap = await getArtistGenres(artistIds);
-
-        // Map Spotify data to your album shape
-        const formatted = albums.map((album) => {
-          const firstArtist = album.artists[0];
-          const artistGenres = artistGenreMap[firstArtist.id] || [];
-          return {
-            id: album.id,
-            title: album.name,
-            artist: firstArtist.name,
-            cover: album.images?.[0]?.url || "",
-            release_date: album.release_date,
-            genre: artistGenres[0] || "Unknown",
-          };
-        });
+        const formatted = albums.map((album) => ({
+          id: album.id,
+          title: album.title,
+          artist: album.artist,
+          cover: album.cover,
+          release_date: album.release_date,
+          genre: album.genre || "Unknown",
+          tracks: album.tracks || [],
+        }));
 
         setReleases(formatted);
       } catch (err) {

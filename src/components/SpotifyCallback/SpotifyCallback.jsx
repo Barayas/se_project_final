@@ -1,14 +1,18 @@
 import { useEffect } from "react";
 import { useNavigate } from "react-router-dom";
-import { setAccessToken, getCurrentUserProfile } from "../../utils/SpotifyApi";
+import {
+  setAccessToken,
+  setRefreshToken,
+  getCurrentUserProfile,
+} from "../../utils/SpotifyApi";
 
 export default function SpotifyCallback({ setSpotifyUser }) {
   const navigate = useNavigate();
 
   useEffect(() => {
-    console.log("SpotifyCallback useEffect triggered");
     const hashParams = new URLSearchParams(window.location.hash.substring(1));
     const token = hashParams.get("access_token");
+    const refresh = hashParams.get("refresh_token");
     const expiresIn = parseInt(hashParams.get("expires_in") || "3600", 10);
 
     if (!token) {
@@ -16,14 +20,14 @@ export default function SpotifyCallback({ setSpotifyUser }) {
       return;
     }
 
-    // Store token locally
     setAccessToken(token, expiresIn);
+    if (refresh) setRefreshToken(refresh);
 
-    // Fetch Spotify profile and update App state
     const fetchProfile = async () => {
       try {
         const profile = await getCurrentUserProfile();
         setSpotifyUser(profile);
+        localStorage.setItem("spotify_user", JSON.stringify(profile));
         window.location.hash = "";
         navigate("/");
       } catch (err) {

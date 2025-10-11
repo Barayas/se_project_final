@@ -18,6 +18,8 @@ import {
   getUserPlaylists,
   createPlaylist as spotifyCreatePlaylist,
   addTracksToPlaylist as spotifyAddTracksToPlaylist,
+  getPlaylistTracks,
+  deleteTrackFromPlaylist,
 } from "../../utils/SpotifyApi";
 
 function Layout({
@@ -98,23 +100,30 @@ function App() {
     try {
       const data = await getUserPlaylists(50);
       const items = data?.items || [];
-      const mapped = items.map((p) => ({
-        id: p.id,
-        name: p.name,
-        description: p.description,
-        albums: [],
-        songs: [],
-        cover: p.images?.[0]?.url || null,
-        raw: p,
-      }));
-      setPlaylists((prev) => {
-        const merged = [
-          ...mapped,
-          ...prev.filter((p) => !mapped.some((m) => m.id === p.id)),
-        ];
-        localStorage.setItem("spotify_playlists", JSON.stringify(merged));
-        return merged;
-      });
+
+      const mapped = await Promise.all(
+        items.map(async (p) => {
+          let songs = [];
+          try {
+            const tracks = await getPlaylistTracks(p.id);
+            songs = tracks;
+          } catch (err) {
+            console.warn(`Failed to load songs for ${p.name}:`, err);
+          }
+
+          return {
+            id: p.id,
+            name: p.name,
+            description: p.description,
+            songs,
+            cover: p.images?.[0]?.url || null,
+            raw: p,
+          };
+        })
+      );
+
+      setPlaylists(mapped);
+      localStorage.setItem("spotify_playlists", JSON.stringify(mapped));
     } catch (err) {
       console.error("Failed to fetch Spotify playlists:", err);
     }
@@ -221,7 +230,20 @@ function App() {
     setShowPlaylistModal(false);
   };
 
-  const handleRemoveSong = (playlistId, song) => {};
+  const handleRemoveSong = async (playlistId, song) => {
+    if (!spotifyUser) {
+      alert("Please sign in to Spotify first.");
+      return;
+    }
+    try {
+      await deleteTrackFromPlaylist(playlistId, song.uri);
+      alert(`Removed ${song.title} from playlist.`);
+      await fetchSpotifyPlaylists();
+    } catch (err) {
+      console.error("Failed to remove song:", err);
+      alert("Failed to remove song from playlist.");
+    }
+  };
 
   return (
     <Router>

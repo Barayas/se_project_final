@@ -198,3 +198,24 @@ export async function getAlbumTracks(albumId) {
     duration_ms: t.duration_ms,
   }));
 }
+
+export async function getPlaylistTracks(playlistId) {
+  const data = await spotifyFetch(`/playlists/${playlistId}/tracks?limit=100`);
+  return data.items.map((item) => {
+    const t = item.track;
+    return {
+      id: t.id,
+      title: t.name,
+      artist: t.artists.map((a) => a.name).join(", "),
+      album: t.album?.name,
+      uri: t.uri,
+    };
+  });
+}
+
+export async function deleteTrackFromPlaylist(playlistId, trackUri) {
+  return spotifyFetch(`/playlists/${playlistId}/tracks`, {
+    method: "DELETE",
+    body: JSON.stringify({ tracks: [{ uri: trackUri }] }),
+  });
+}

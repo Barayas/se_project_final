@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect, useRef } from "react";
 import ModalWithForm from "../ModalWithForm/ModalWithForm";
 import "./AlbumModal.css";
 
@@ -11,6 +11,7 @@ export default function AlbumModal({
   const [activeSong, setActiveSong] = useState(null);
   const [showPlaylistPopup, setShowPlaylistPopup] = useState(false);
   const [selectedPlaylistId, setSelectedPlaylistId] = useState("");
+  const popupRef = useRef(null);
 
   const formatDuration = (ms) => {
     if (!ms && ms !== 0) return "–:–";
@@ -45,6 +46,22 @@ export default function AlbumModal({
     setActiveSong(null);
   };
 
+  // 🔹 Close popup when clicking outside
+  useEffect(() => {
+    const handleClickOutside = (e) => {
+      if (
+        popupRef.current &&
+        !popupRef.current.contains(e.target) &&
+        !e.target.classList.contains("add-btn")
+      ) {
+        setActiveSong(null);
+        setShowPlaylistPopup(false);
+      }
+    };
+    document.addEventListener("mousedown", handleClickOutside);
+    return () => document.removeEventListener("mousedown", handleClickOutside);
+  }, []);
+
   return (
     <ModalWithForm
       isOpen={!!album}
@@ -52,7 +69,7 @@ export default function AlbumModal({
       title={album?.title || "Album"}
       showSubmit={false}
     >
-      <div className="album-modal">
+      <div className="album-modal" style={{ position: "relative" }}>
         {/* Album Info Section */}
         <div className="album-info">
           <img src={album.cover} alt={album.title} className="album-cover" />
@@ -96,7 +113,7 @@ export default function AlbumModal({
           </div>
 
           {showPlaylistPopup && (
-            <div className="album-popup">
+            <div className="album-popup" ref={popupRef}>
               {playlists.length > 0 ? (
                 playlists.map((pl) => (
                   <button
@@ -126,7 +143,10 @@ export default function AlbumModal({
                     {formatDuration(track.duration_ms)}
                   </span>
 
-                  <div className="track-actions">
+                  <div
+                    className="track-actions"
+                    style={{ position: "relative" }}
+                  >
                     <button
                       className="add-btn"
                       onClick={() =>
@@ -137,12 +157,34 @@ export default function AlbumModal({
                     </button>
 
                     {activeSong === track && (
-                      <div className="playlist-popup">
+                      <div
+                        className="playlist-popup"
+                        ref={popupRef}
+                        style={{
+                          position: "absolute",
+                          top: "100%",
+                          right: 0,
+                          background: "#222",
+                          borderRadius: "8px",
+                          padding: "0.5rem",
+                          zIndex: 20,
+                        }}
+                      >
                         {playlists.length > 0 ? (
                           playlists.map((pl) => (
                             <button
                               key={pl.id}
                               onClick={() => handleAddSongToPlaylist(pl, track)}
+                              style={{
+                                display: "block",
+                                width: "100%",
+                                textAlign: "left",
+                                background: "none",
+                                color: "#fff",
+                                border: "none",
+                                padding: "0.25rem 0.5rem",
+                                cursor: "pointer",
+                              }}
                             >
                               {pl.name}
                             </button>

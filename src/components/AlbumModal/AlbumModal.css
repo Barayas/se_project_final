@@ -162,8 +162,6 @@
 
 .playlist-popup {
   position: absolute;
-  right: 0;
-  top: 110%;
   background: #181818;
   border: 1px solid #333;
   border-radius: 6px;

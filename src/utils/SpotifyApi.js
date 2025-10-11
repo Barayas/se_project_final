@@ -85,10 +85,68 @@ export async function removeTracksFromPlaylist(playlistId, uris) {
 }
 
 export async function getNewReleases(limit = 20) {
-  return spotifyFetch(`/browse/new-releases?limit=${limit}`);
+  const releasesData = await spotifyFetch(
+    `/browse/new-releases?limit=${limit}`
+  );
+  const albums = releasesData.albums.items;
+
+  // Fetch track details for each album
+  const albumsWithTracks = await Promise.all(
+    albums.map(async (album) => {
+      try {
+        const tracksData = await spotifyFetch(`/albums/${album.id}/tracks`);
+        const tracks = tracksData.items.map((t) => ({
+          name: t.name,
+          duration_ms: t.duration_ms,
+        }));
+
+        return {
+          id: album.id,
+          title: album.name,
+          artist: album.artists.map((a) => a.name).join(", "),
+          cover: album.images?.[0]?.url || "",
+          genre: album.album_type || "Unknown",
+          tracks,
+        };
+      } catch (err) {
+        console.error(`Failed to fetch tracks for album ${album.id}:`, err);
+        return {
+          id: album.id,
+          title: album.name,
+          artist: album.artists.map((a) => a.name).join(", "),
+          cover: album.images?.[0]?.url || "",
+          genre: album.album_type || "Unknown",
+          tracks: [],
+        };
+      }
+    })
+  );
+
+  return albumsWithTracks;
 }
 
 export async function searchSpotify(query, type = "track", limit = 10) {
   const encodedQuery = encodeURIComponent(query);
   return spotifyFetch(`/search?q=${encodedQuery}&type=${type}&limit=${limit}`);
+}
+
+export async function getArtistGenres(artistIds = []) {
+  if (!artistIds.length) return {};
+  const batchedIds = artistIds.slice(0, 50).join(",");
+  const data = await spotifyFetch(`/artists?ids=${batchedIds}`);
+  const genreMap = {};
+  data.artists.forEach((artist) => {
+    genreMap[artist.id] = artist.genres;
+  });
+  return genreMap;
+}
+
+export async function getAlbumTracks(albumId) {
+  const data = await spotifyFetch(`/albums/${albumId}/tracks`);
+  return data.items.map((t) => ({
+    id: t.id,
+    name: t.name,
+    preview_url: t.preview_url,
+    duration_ms: t.duration_ms,
+  }));
 }

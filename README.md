@@ -10,7 +10,7 @@ To run the application, follow these steps:
 2. Run `npm install`
 3. Run `npm run dev`
 
-Make sure you are running the backend before you start the app
+Make sure you are running the backend before you start the app with node server.js
 
 ## Features
 

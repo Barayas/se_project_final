@@ -12,6 +12,11 @@
   font-weight: bold;
 }
 
+.header-actions {
+  display: flex;
+  align-items: center;
+}
+
 .logo {
   font-size: 24px;
   margin-right: auto;

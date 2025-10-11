@@ -18,17 +18,29 @@ export default function Sidebar() {
               Home
             </NavLink>
           </li>
+
           <li>
             <NavLink
-              to="/playlists"
+              to="/about"
               className={({ isActive }) =>
                 isActive
                   ? "sidebar__link sidebar__link--active"
                   : "sidebar__link"
               }
             >
-              Playlists
+              About
             </NavLink>
+          </li>
+
+          <li>
+            <a
+              href="https://open.spotify.com/"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="sidebar__link"
+            >
+              Spotify
+            </a>
           </li>
         </ul>
       </nav>

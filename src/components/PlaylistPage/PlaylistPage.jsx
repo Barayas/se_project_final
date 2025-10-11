@@ -1,18 +1,20 @@
 import "./PlaylistPage.css";
-import defaultCover from "../../assets/default-playlist.png"; //
+import defaultCover from "../../assets/default-playlist.png";
 
 export default function PlaylistPage({
   playlists,
   handleRemoveFromPlaylist,
   onOpenPlaylistModal,
 }) {
+  if (!playlists) playlists = [];
+
   return (
     <main className="main-content">
       <div className="content-header">
         <h2>Your Playlists</h2>
       </div>
 
-      {!playlists || playlists.length === 0 ? (
+      {playlists.length === 0 ? (
         <p>No playlists yet. Click “Create Playlist” to make one!</p>
       ) : (
         <div className="playlist-grid">

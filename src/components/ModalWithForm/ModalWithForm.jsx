@@ -31,7 +31,7 @@ export default function ModalWithForm({
         <form
           onSubmit={(e) => {
             e.preventDefault();
-            if (onSubmit) onSubmit();
+            if (onSubmit) onSubmit(e);
           }}
           className="modal-form"
         >

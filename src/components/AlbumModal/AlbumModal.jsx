@@ -8,12 +8,12 @@ export default function AlbumModal({
   playlists = [],
   onAddToPlaylist,
 }) {
-  const [activeSong, setActiveSong] = useState(null); // Which song’s add menu is open
+  const [activeSong, setActiveSong] = useState(null);
   const [showPlaylistPopup, setShowPlaylistPopup] = useState(false);
+  const [selectedPlaylistId, setSelectedPlaylistId] = useState("");
 
-  // Helper: Convert milliseconds to mm:ss
   const formatDuration = (ms) => {
-    if (!ms) return "–:–";
+    if (!ms && ms !== 0) return "–:–";
     const minutes = Math.floor(ms / 60000);
     const seconds = Math.floor((ms % 60000) / 1000)
       .toString()
@@ -21,15 +21,27 @@ export default function AlbumModal({
     return `${minutes}:${seconds}`;
   };
 
-  const handleAddAlbumToPlaylist = (playlist) => {
-    album.tracks.forEach((track) => {
-      onAddToPlaylist(album, playlist, track.name);
-    });
+  const handleAddAlbumToPlaylist = async (playlist) => {
+    if (!playlist) {
+      alert("Please select a playlist first.");
+      return;
+    }
+
+    if (!album.tracks || album.tracks.length === 0) {
+      alert("No tracks available to add.");
+      return;
+    }
+
+    await onAddToPlaylist(album, playlist, album.tracks);
     setShowPlaylistPopup(false);
   };
 
-  const handleAddSongToPlaylist = (playlist, song) => {
-    onAddToPlaylist(album, playlist, song.name);
+  const handleAddSongToPlaylist = async (playlist, song) => {
+    if (!playlist) {
+      alert("Please select a playlist first.");
+      return;
+    }
+    await onAddToPlaylist(album, playlist, song);
     setActiveSong(null);
   };
 
@@ -53,12 +65,35 @@ export default function AlbumModal({
 
         {/* Add Album Button */}
         <div className="album-actions">
-          <button
-            className="add-album-btn"
-            onClick={() => setShowPlaylistPopup(!showPlaylistPopup)}
-          >
-            + Add Album to Playlist
-          </button>
+          <div style={{ display: "flex", gap: "0.5rem", alignItems: "center" }}>
+            <select
+              value={selectedPlaylistId}
+              onChange={(e) => setSelectedPlaylistId(e.target.value)}
+            >
+              <option value="">Select a playlist...</option>
+              {playlists.map((pl) => (
+                <option key={pl.id} value={pl.id}>
+                  {pl.name}
+                </option>
+              ))}
+            </select>
+
+            <button
+              className="add-album-btn"
+              onClick={() => {
+                const playlist = playlists.find(
+                  (p) => p.id === selectedPlaylistId
+                );
+                if (!playlist) {
+                  alert("Please select a playlist.");
+                  return;
+                }
+                handleAddAlbumToPlaylist(playlist);
+              }}
+            >
+              + Add Album to Playlist
+            </button>
+          </div>
 
           {showPlaylistPopup && (
             <div className="album-popup">
@@ -84,7 +119,7 @@ export default function AlbumModal({
           {album.tracks && album.tracks.length > 0 ? (
             <ul>
               {album.tracks.map((track, i) => (
-                <li key={i} className="track-row">
+                <li key={track.id || i} className="track-row">
                   <span className="track-number">{i + 1}</span>
                   <span className="track-title">{track.name}</span>
                   <span className="track-duration">

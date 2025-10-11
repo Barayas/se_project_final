@@ -26,12 +26,9 @@ export default function PlaylistModal({
           alt={playlist.name}
           className="playlist-modal-cover"
         />
-
         {playlist.description && (
           <p className="playlist-modal-description">{playlist.description}</p>
         )}
-
-        {/* Songs Section */}
         {hasSongs && (
           <div className="playlist-songs">
             <h4>Songs</h4>
@@ -57,11 +54,9 @@ export default function PlaylistModal({
             </ul>
           </div>
         )}
-
         {!hasSongs && (
           <p className="no-tracks">No songs in this playlist yet.</p>
         )}
-
         <button
           className="delete-playlist-btn"
           onClick={() => handleDeletePlaylist(playlist.id)}

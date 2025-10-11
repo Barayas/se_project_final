@@ -12,9 +12,14 @@ import Footer from "../Footer/Footer";
 import PlaylistPage from "../PlaylistPage/PlaylistPage";
 import CreatePlaylistModal from "../CreatePlaylistModal/CreatePlaylistModal";
 import PlaylistModal from "../PlaylistModal/PlaylistModal";
-import mockReleases from "../../utils/mockReleases";
 import SpotifyCallback from "../SpotifyCallback/SpotifyCallback";
 import "./App.css";
+
+import {
+  getUserPlaylists,
+  createPlaylist as spotifyCreatePlaylist,
+  addTracksToPlaylist as spotifyAddTracksToPlaylist,
+} from "../../utils/SpotifyApi";
 
 function Layout({
   selectedGenre,
@@ -46,7 +51,6 @@ function Layout({
               <MainContent
                 selectedGenre={selectedGenre}
                 setSelectedGenre={setSelectedGenre}
-                releases={mockReleases}
                 playlists={playlists}
                 handleAddToPlaylist={handleAddToPlaylist}
               />
@@ -75,62 +79,94 @@ function Layout({
 
 function App() {
   const [selectedGenre, setSelectedGenre] = useState("All");
-  const [playlists, setPlaylists] = useState(() => {
-    const saved = localStorage.getItem("nexttrack_playlists");
-    return saved ? JSON.parse(saved) : [];
-  });
-
+  const [playlists, setPlaylists] = useState([]);
   const [showCreateModal, setShowCreateModal] = useState(false);
   const [showPlaylistModal, setShowPlaylistModal] = useState(false);
   const [selectedPlaylist, setSelectedPlaylist] = useState(null);
+  const [spotifyUser, setSpotifyUser] = useState(
+    JSON.parse(localStorage.getItem("spotify_user")) || null
+  );
 
-  // **Spotify user state**
-  const [spotifyUser, setSpotifyUser] = useState(null);
-  console.log("Current spotifyUser state:", spotifyUser);
-
-  // Persist playlists in localStorage
-  useEffect(() => {
-    localStorage.setItem("nexttrack_playlists", JSON.stringify(playlists));
-  }, [playlists]);
-
-  const handleCreatePlaylist = ({ name, description, cover }) => {
-    const newPlaylist = {
-      id: Date.now(),
-      name,
-      description,
-      albums: [],
-      songs: [],
-      cover: cover || null,
-    };
-    setPlaylists((prev) => [...prev, newPlaylist]);
+  const fetchSpotifyPlaylists = async () => {
+    if (!spotifyUser) {
+      setPlaylists([]);
+      return;
+    }
+    try {
+      const data = await getUserPlaylists(50);
+      const items = data?.items || [];
+      const mapped = items.map((p) => ({
+        id: p.id,
+        name: p.name,
+        description: p.description,
+        albums: [],
+        songs: [],
+        cover: p.images?.[0]?.url || null,
+        raw: p,
+      }));
+      setPlaylists(mapped);
+    } catch (err) {
+      console.error("Failed to fetch Spotify playlists:", err);
+      setPlaylists([]);
+    }
   };
 
-  const handleAddToPlaylist = (album, playlist, track) => {
-    setPlaylists((prev) =>
-      prev.map((p) => {
-        if (p.id === playlist.id) {
-          const newSong = {
-            title: track,
-            artist: album.artist,
-            album: album.title,
-            cover: album.cover,
-          };
+  useEffect(() => {
+    localStorage.setItem("spotify_user", JSON.stringify(spotifyUser));
+    if (spotifyUser) fetchSpotifyPlaylists();
+    else setPlaylists([]);
+  }, [spotifyUser]);
 
-          const exists = p.songs?.some(
-            (s) =>
-              s.title === newSong.title &&
-              s.artist === newSong.artist &&
-              s.album === newSong.album
-          );
+  const handleCreatePlaylist = async ({ name, description, cover }) => {
+    if (!spotifyUser) {
+      alert("Error: please sign in to Spotify to create playlists.");
+      return;
+    }
+    try {
+      await spotifyCreatePlaylist(spotifyUser.id, name, description, false);
+      await fetchSpotifyPlaylists();
+      setShowCreateModal(false);
+    } catch (err) {
+      console.error("Error creating Spotify playlist:", err);
+      alert("Failed to create playlist on Spotify. See console for details.");
+    }
+  };
 
-          return {
-            ...p,
-            songs: exists ? p.songs : [...(p.songs || []), newSong],
-          };
+  const handleAddToPlaylist = async (album, playlist, track) => {
+    if (!spotifyUser) {
+      alert("Error: please sign in to Spotify to add songs.");
+      return;
+    }
+    if (!playlist || !playlist.id) {
+      alert("Please select a Spotify playlist.");
+      return;
+    }
+    try {
+      let uris = [];
+      if (Array.isArray(track)) {
+        uris = track.map((t) => `spotify:track:${t.id}`);
+      } else if (typeof track === "object" && track?.id) {
+        uris = [`spotify:track:${track.id}`];
+      } else {
+        const found = (album.tracks || []).find(
+          (t) => t.name === track || t.name === track.name
+        );
+        if (found && found.id) {
+          uris = [`spotify:track:${found.id}`];
+        } else {
+          alert("Can't add this track to Spotify: missing track id.");
+          return;
         }
-        return p;
-      })
-    );
+      }
+      await spotifyAddTracksToPlaylist(playlist.id, uris);
+      await fetchSpotifyPlaylists();
+      alert("Added to playlist on Spotify!");
+    } catch (err) {
+      console.error("Error adding tracks to Spotify playlist:", err);
+      alert(
+        "Failed to add tracks to Spotify playlist. See console for details."
+      );
+    }
   };
 
   const handleRemoveFromPlaylist = (playlistId) => {
@@ -143,34 +179,12 @@ function App() {
   };
 
   const handleDeletePlaylist = (id) => {
-    setPlaylists((prev) => prev.filter((p) => p.id !== id));
+    handleRemoveFromPlaylist(id);
     setShowPlaylistModal(false);
   };
 
   const handleRemoveSong = (playlistId, song) => {
-    setPlaylists((prev) => {
-      const updated = prev.map((pl) => {
-        if (pl.id !== playlistId) return pl;
-
-        const filteredSongs = (pl.songs || []).filter(
-          (s) =>
-            !(
-              s.title === song.title &&
-              s.artist === song.artist &&
-              (s.album || "") === (song.album || "")
-            )
-        );
-
-        return { ...pl, songs: filteredSongs };
-      });
-
-      if (selectedPlaylist && selectedPlaylist.id === playlistId) {
-        const newSelected = updated.find((p) => p.id === playlistId) || null;
-        setSelectedPlaylist(newSelected);
-      }
-
-      return updated;
-    });
+    console.warn("Remove song from Spotify playlist not implemented yet.");
   };
 
   return (
@@ -187,15 +201,14 @@ function App() {
         setSpotifyUser={setSpotifyUser}
       />
 
-      {/* Create Playlist Modal */}
       {showCreateModal && (
         <CreatePlaylistModal
           onClose={() => setShowCreateModal(false)}
           onCreate={handleCreatePlaylist}
+          spotifyUser={spotifyUser}
         />
       )}
 
-      {/* Playlist Info Modal */}
       {showPlaylistModal && selectedPlaylist && (
         <PlaylistModal
           isOpen={showPlaylistModal}

@@ -14,7 +14,7 @@ export default function CreatePlaylistModal({ onClose, onCreate }) {
     if (file) {
       const reader = new FileReader();
       reader.onloadend = () => {
-        setCoverData(reader.result); // store base64 image data
+        setCoverData(reader.result);
         setPreview(reader.result);
       };
       reader.readAsDataURL(file);
@@ -24,15 +24,10 @@ export default function CreatePlaylistModal({ onClose, onCreate }) {
     }
   };
 
-  const handleSubmit = () => {
+  const handleSubmit = (e) => {
+    e.preventDefault();
     if (!name.trim()) return;
-
-    onCreate({
-      name,
-      description,
-      cover: coverData || null,
-    });
-
+    onCreate({ name, description, cover: coverData || null });
     onClose();
   };
 
@@ -52,7 +47,6 @@ export default function CreatePlaylistModal({ onClose, onCreate }) {
           required
         />
       </label>
-
       <label>
         Description (optional):
         <textarea
@@ -60,12 +54,10 @@ export default function CreatePlaylistModal({ onClose, onCreate }) {
           onChange={(e) => setDescription(e.target.value)}
         />
       </label>
-
       <label>
         Cover Image (optional):
         <input type="file" accept="image/*" onChange={handleImageChange} />
       </label>
-
       <div className="playlist-preview">
         <p>Preview:</p>
         <img

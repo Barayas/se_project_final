@@ -1,5 +1,4 @@
 const SPOTIFY_API_BASE = "https://api.spotify.com/v1";
-const SPOTIFY_TOKEN_URL = "https://accounts.spotify.com/api/token";
 
 export function setAccessToken(token, expiresIn = 3600) {
   const expirationTime = Date.now() + expiresIn * 1000;
@@ -11,46 +10,32 @@ export function setRefreshToken(refreshToken) {
   localStorage.setItem("spotify_refresh_token", refreshToken);
 }
 
-export function getAccessToken() {
-  const token = localStorage.getItem("spotify_access_token");
-  const expiration = localStorage.getItem("spotify_token_expiration");
-  if (!token || Date.now() > expiration) return null;
-  return token;
+export function clearAccessToken() {
+  localStorage.removeItem("spotify_access_token");
+  localStorage.removeItem("spotify_token_expiration");
+  localStorage.removeItem("spotify_refresh_token");
 }
 
-export async function refreshAccessToken() {
+async function refreshAccessToken() {
   const refreshToken = localStorage.getItem("spotify_refresh_token");
   if (!refreshToken) {
-    console.error("No refresh token found");
+    console.warn("No refresh token found. User must log in again.");
     return null;
   }
 
   try {
-    const params = new URLSearchParams();
-    params.append("grant_type", "refresh_token");
-    params.append("refresh_token", refreshToken);
-
-    const res = await fetch(SPOTIFY_TOKEN_URL, {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/x-www-form-urlencoded",
-        Authorization:
-          "Basic " +
-          btoa(
-            `${import.meta.env.VITE_SPOTIFY_CLIENT_ID}:${
-              import.meta.env.VITE_SPOTIFY_CLIENT_SECRET
-            }`
-          ),
-      },
-      body: params,
-    });
-
-    if (!res.ok) throw new Error("Failed to refresh access token");
+    const res = await fetch(
+      `http://localhost:3001/refresh_token?refresh_token=${refreshToken}`
+    );
     const data = await res.json();
 
     if (data.access_token) {
-      setAccessToken(data.access_token, data.expires_in);
+      const expiresIn = data.expires_in || 3600;
+      setAccessToken(data.access_token, expiresIn);
       return data.access_token;
+    } else {
+      console.error("Failed to refresh token:", data);
+      return null;
     }
   } catch (err) {
     console.error("Error refreshing Spotify token:", err);
@@ -58,14 +43,22 @@ export async function refreshAccessToken() {
   }
 }
 
-export async function spotifyFetch(endpoint, options = {}) {
-  let token = getAccessToken();
-  if (!token) {
+export async function getAccessToken() {
+  let token = localStorage.getItem("spotify_access_token");
+  const expiration = localStorage.getItem("spotify_token_expiration");
+
+  if (!token || Date.now() > Number(expiration)) {
     token = await refreshAccessToken();
-    if (!token) throw new Error("No Spotify access token available");
   }
 
-  const res = await fetch(`${SPOTIFY_API_BASE}${endpoint}`, {
+  return token;
+}
+
+export async function spotifyFetch(endpoint, options = {}) {
+  let token = await getAccessToken();
+  if (!token) throw new Error("No Spotify access token available");
+
+  let res = await fetch(`${SPOTIFY_API_BASE}${endpoint}`, {
     ...options,
     headers: {
       Authorization: `Bearer ${token}`,
@@ -76,8 +69,15 @@ export async function spotifyFetch(endpoint, options = {}) {
 
   if (res.status === 401) {
     token = await refreshAccessToken();
-    if (!token) throw new Error("Unable to refresh token");
-    return spotifyFetch(endpoint, options);
+    if (!token) throw new Error("Unable to refresh Spotify token");
+    res = await fetch(`${SPOTIFY_API_BASE}${endpoint}`, {
+      ...options,
+      headers: {
+        Authorization: `Bearer ${token}`,
+        "Content-Type": "application/json",
+        ...(options.headers || {}),
+      },
+    });
   }
 
   if (!res.ok) {
@@ -87,12 +87,6 @@ export async function spotifyFetch(endpoint, options = {}) {
   }
 
   return res.json();
-}
-
-export function clearAccessToken() {
-  localStorage.removeItem("spotify_access_token");
-  localStorage.removeItem("spotify_token_expiration");
-  localStorage.removeItem("spotify_refresh_token");
 }
 
 export async function getCurrentUserProfile() {
@@ -136,38 +130,47 @@ export async function getNewReleases(limit = 20) {
   );
   const albums = releasesData.albums.items;
 
-  const albumsWithTracks = await Promise.all(
+  const albumsWithGenres = await Promise.all(
     albums.map(async (album) => {
+      let genre = "Unknown";
+      try {
+        const artistId = album.artists?.[0]?.id;
+        if (artistId) {
+          const artistData = await spotifyFetch(`/artists/${artistId}`);
+          if (artistData.genres?.length > 0) {
+            genre = artistData.genres[0]; // take the first genre
+          }
+        }
+      } catch (err) {
+        console.error(
+          `Failed to fetch genres for artist ${album.artists?.[0]?.name}:`,
+          err
+        );
+      }
+
+      let tracks = [];
       try {
         const tracksData = await spotifyFetch(`/albums/${album.id}/tracks`);
-        const tracks = tracksData.items.map((t) => ({
+        tracks = tracksData.items.map((t) => ({
           name: t.name,
           duration_ms: t.duration_ms,
         }));
-
-        return {
-          id: album.id,
-          title: album.name,
-          artist: album.artists.map((a) => a.name).join(", "),
-          cover: album.images?.[0]?.url || "",
-          genre: album.album_type || "Unknown",
-          tracks,
-        };
       } catch (err) {
         console.error(`Failed to fetch tracks for album ${album.id}:`, err);
-        return {
-          id: album.id,
-          title: album.name,
-          artist: album.artists.map((a) => a.name).join(", "),
-          cover: album.images?.[0]?.url || "",
-          genre: album.album_type || "Unknown",
-          tracks: [],
-        };
       }
+
+      return {
+        id: album.id,
+        title: album.name,
+        artist: album.artists.map((a) => a.name).join(", "),
+        cover: album.images?.[0]?.url || "",
+        genre,
+        tracks,
+      };
     })
   );
 
-  return albumsWithTracks;
+  return albumsWithGenres;
 }
 
 export async function searchSpotify(query, type = "track", limit = 10) {

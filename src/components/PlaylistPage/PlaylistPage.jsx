@@ -5,6 +5,7 @@ export default function PlaylistPage({
   playlists,
   handleRemoveFromPlaylist,
   onOpenPlaylistModal,
+  onRefresh,
 }) {
   if (!playlists) playlists = [];
 
@@ -12,6 +13,9 @@ export default function PlaylistPage({
     <main className="main-content">
       <div className="content-header">
         <h2>Your Playlists</h2>
+        <button className="refresh-btn" onClick={onRefresh}>
+          Refresh
+        </button>
       </div>
 
       {playlists.length === 0 ? (

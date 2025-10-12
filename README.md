@@ -1,6 +1,6 @@
 # NextTrack Application
 
-This is a basic React application created with Vite with minimal backend for OAuth.
+NextTrack is a sleek React web application that integrates with the Spotify Web API to showcase the latest music releases. Users can explore new albums and singles, filter them by artist genre, and easily create and manage personalized playlists — all while syncing directly with their Spotify account. The app features a responsive design, smooth user authentication, and a modern, Spotify-inspired interface.
 
 ## Getting Started
 

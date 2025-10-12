@@ -87,3 +87,55 @@
 .logout-btn:hover {
   text-decoration: underline;
 }
+
+/* Responsive Styles */
+@media (max-width: 480px) {
+  .header {
+    align-items: center;
+    text-align: center;
+    padding: 1rem;
+  }
+
+  .logo {
+    font-size: 20px;
+    margin: 0 0 0.75rem 0;
+  }
+
+  .nav {
+    display: flex;
+    flex-direction: column;
+    width: 100%;
+    gap: 0.5rem;
+    margin-bottom: 0.75rem;
+  }
+
+  .nav a {
+    margin: 0;
+    font-size: 0.95rem;
+  }
+
+  .header-actions {
+    flex-direction: column;
+    gap: 0.5rem;
+    width: 100%;
+  }
+
+  .create-playlist-btn,
+  .login-btn,
+  .logout-btn {
+    width: 100%;
+    padding: 0.6rem;
+    font-size: 0.95rem;
+  }
+
+  .spotify-profile {
+    justify-content: center;
+    width: 100%;
+    margin-top: 0.5rem;
+  }
+
+  .spotify-avatar {
+    width: 28px;
+    height: 28px;
+  }
+}

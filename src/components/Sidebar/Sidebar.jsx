@@ -18,20 +18,6 @@ export default function Sidebar() {
               Home
             </NavLink>
           </li>
-
-          <li>
-            <NavLink
-              to="/about"
-              className={({ isActive }) =>
-                isActive
-                  ? "sidebar__link sidebar__link--active"
-                  : "sidebar__link"
-              }
-            >
-              About
-            </NavLink>
-          </li>
-
           <li>
             <a
               href="https://open.spotify.com/"

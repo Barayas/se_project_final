@@ -70,3 +70,46 @@
   color: #181818;
   transition: color 0.3s ease;
 }
+
+/* Responsive Styles*/
+@media (max-width: 480px) {
+  .main-content {
+    padding: 1rem;
+  }
+
+  .content-header {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 0.75rem;
+  }
+
+  .genre-filter {
+    width: 100%;
+    font-size: 0.9rem;
+    padding: 0.5rem;
+  }
+
+  .album-grid {
+    grid-template-columns: repeat(auto-fill, minmax(140px, 1fr));
+    gap: 1rem;
+  }
+
+  .album-card {
+    padding: 0.75rem;
+  }
+
+  .album-card img {
+    margin-bottom: 0.4rem;
+  }
+
+  .genre-tag {
+    font-size: 0.7rem;
+    padding: 0.2rem 0.5rem;
+  }
+
+  .add-btn {
+    width: 100%;
+    padding: 0.6rem;
+    font-size: 0.9rem;
+  }
+}

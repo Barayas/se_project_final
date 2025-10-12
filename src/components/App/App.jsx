@@ -68,9 +68,19 @@ function Layout({
               />
             }
           />
+
           <Route
             path="/callback"
             element={<SpotifyCallback setSpotifyUser={setSpotifyUser} />}
+          />
+
+          <Route
+            path="*"
+            element={
+              <div style={{ padding: "2rem", color: "#fff" }}>
+                <h2>Page not found</h2>
+              </div>
+            }
           />
         </Routes>
       </div>

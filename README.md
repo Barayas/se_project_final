@@ -23,3 +23,9 @@ Make sure you are running the backend before you start the app with node server.
 - React
 - Vite
 - Express
+
+## LINK TO DEPLOYMENT AND BACKEND REPO
+
+Deployment: https://se-project-final.onrender.com/
+
+Backend Repo: https://github.com/Barayas/se_project_final_express

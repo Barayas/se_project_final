@@ -1,5 +1,7 @@
 const SPOTIFY_API_BASE = "https://api.spotify.com/v1";
 
+const BACKEND_URI = import.meta.env.VITE_BACKEND_URI;
+
 export function setAccessToken(token, expiresIn = 3600) {
   const expirationTime = Date.now() + expiresIn * 1000;
   localStorage.setItem("spotify_access_token", token);
@@ -25,8 +27,9 @@ async function refreshAccessToken() {
 
   try {
     const res = await fetch(
-      `http://localhost:3001/refresh_token?refresh_token=${refreshToken}`
+      `${BACKEND_URI}/refresh_token?refresh_token=${refreshToken}`
     );
+
     const data = await res.json();
 
     if (data.access_token) {
@@ -89,6 +92,7 @@ export async function spotifyFetch(endpoint, options = {}) {
   return res.json();
 }
 
+// --- Spotify API Wrappers ---
 export async function getCurrentUserProfile() {
   return spotifyFetch("/me");
 }
@@ -138,7 +142,7 @@ export async function getNewReleases(limit = 20) {
         if (artistId) {
           const artistData = await spotifyFetch(`/artists/${artistId}`);
           if (artistData.genres?.length > 0) {
-            genre = artistData.genres[0]; // take the first genre
+            genre = artistData.genres[0];
           }
         }
       } catch (err) {

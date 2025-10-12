@@ -1,0 +1,13 @@
+.playlist-preview {
+  margin-top: 1rem;
+  text-align: center;
+}
+
+.playlist-preview-img {
+  width: 120px;
+  height: 120px;
+  object-fit: cover;
+  border-radius: 8px;
+  margin-top: 0.5rem;
+  border: 2px solid #333;
+}
